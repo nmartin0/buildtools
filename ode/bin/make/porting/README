@@ -1,0 +1,7 @@
+odemake should build with your system's native include files. 
+stdlib.bsd.h and strings.mk.h are provided here to be used as
+stdlib.h and strings.h if you don't  have such files or they
+will not work.
+
+See also the files in buildtools/include. If your system is very
+non-standard you may need to install all or some of those files.

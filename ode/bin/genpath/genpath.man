@@ -1,0 +1,144 @@
+.\"
+.\" Distributed as part of the Mach Operating System
+.\"
+.\"
+.TH genpath 1 5/20/90
+.CM 4
+.SH NAME
+.PP
+genpath \- expands a flag specified by a relative directory to look in all backing trees
+.\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.\"
+.\" @OSF_FREE_COPYRIGHT@
+.\" 
+.\" Copyright (c) 1990, 1991
+.\" Open Software Foundation, Inc.
+.\" 
+.\" Permission is hereby granted to use, copy, modify and freely distribute
+.\" the software in this file and its documentation for any purpose without
+.\" fee, provided that the above copyright notice appears in all copies and
+.\" that both the copyright notice and this permission notice appear in
+.\" supporting documentation.  Further, provided that the name of Open
+.\" Software Foundation, Inc. ("OSF") not be used in advertising or
+.\" publicity pertaining to distribution of the software without prior
+.\" written permission from OSF.  OSF makes no representations about the
+.\" suitability of this software for any purpose.  It is provided "as is"
+.\" without express or implied warranty.
+.\"
+.\"
+.\" HISTORY
+.\" $Log:	genpath.man,v $
+.\" Revision 2.2  92/05/20  20:12:03  mrt
+.\" 	First checkin
+.\" 	[92/05/20  15:15:34  mrt]
+.\" 
+.\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.PP
+.SH SYNOPSIS
+.PP
+\fBgenpath\fP
+[\fB-sb \fP\fIsandbox-name\fP]
+[\fB-sb_rc \fP\fIrc-file\fP]
+[\fB-rc \fP\fIrc-file\fP]
+[\fB-usage\fP]
+[\fB-v\fP]
+flags_to_be_expanded
+.PP
+.SH FLAGS
+.PP
+.IP "\fB-sb \fP\fIsandbox-name\fP"
+The sandbox name.
+The default value of this flag is the value of $SANDBOX or the default
+sandbox name listed in your $HOME/.sandboxrc file.
+.IP "\fB-rc \fP\fIrc-file\fP"
+Provides the path and name of an alternative .sandboxrc file to use instead of
+the default \fB${HOME}/.sandboxrc\fP.
+.IP "\fB-sb_rc \fP\fIrc-file\fP"
+Provides the path and name of an alternative rc file to use instead of
+the default \fBsandbox/rc_files/local\fP.
+.IP "\fB-usage\fP"
+Print the usage line.
+.IP "\fB-v\fP"
+Provides additional debugging information.
+.PP
+.SH DESCRIPTION
+.PP
+.B genpath
+searches through the local file in your sandbox rc_files
+directory for backing trees for your sandbox.
+Each flags_to_be_expanded that is specified with a relative path is expanded
+to a list of flags for the obj tree and src tree of the sandbox and of
+each backing tree.
+Each flags_to_be_expanded that does not contain a relative path or is not
+of the form -Cpath (where C is any character and path is a relative path)
+is passed through unchanged.
+In the beta version of \fBgenpath\fP, only the flags -I and -L are recognized.
+\fBgenpath\fP functions commutatively, therefore:
+.sp
+.in +2
+`\fBgenpath\fP -Ifoo -Ibar`
+.in
+.sp
+is equivelent to
+.sp
+.in +2
+`\fBgenpath\fP -Ifoo` `\fBgenpath\fP -Ibar`
+.in
+.PP
+.SH EXAMPLES
+.PP
+Here is the simple use of \fBgenpath\fP in a sandbox, /foo, backed by
+a backing tree, /back:
+.sp
+.in +2
+.nf
+cd /foo/src/usr
+genpath -I. -Iinc
+.fi
+.in
+.sp
+This returns the value:
+.sp
+.in +2
+.nf
+-I. -I/foo/src/usr -I/back/obj/pmax/usr -I/back/src/usr -Iinc \\
+-I/foo/src/usr/inc -I/back/obj/pmax/usr/inc -I/back/src/usr/inc
+.fi
+.in
+.sp
+.PP
+When \fBgenpath\fP is run in a Makefile, it will be executing
+from the obj directory
+that corresponds to the source directory of the Makefile that it is called in.
+If the obj directory is different from the source directory then it may
+be necessary to cd to the obj directory before executing a \fBgenpath\fP
+command that is cut and pasted from make output.
+This is an example of how to run the \fBgenpath\fP command shown in a 
+Makefile which uses different source and object directories:
+.sp
+.in +2
+.nf
+(cd ../../../obj/pmax/usr/bin; genpath -I. -Ilocal_includes)
+.fi
+.in
+.sp
+.PP
+.SH FILES
+.PP
+.IP \fB$HOME/.sandboxrc\fP
+is used to obtain the path of the sandbox.
+.IP \fIsandbox\fP\fB/rc_files/local\fP and \fIsandbox\fP\fB/rc_files/shared\fP
+are looked in for references to the
+backing trees.
+.PP
+.SH PLANNED ENHANCEMENTS
+.PP
+If no flags_to_be_expanded are specified, then \fBgenpath\fP should 
+print a list
+of the source tree roots (pseudo-roots) for all of the trees that the
+sandbox is backed by.
+\fBgenpath\fP should allow the user to specify an environment variable 
+that describes these psuedo-roots so that it does not need to read the 
+rc files to determine their location.
+.PP
+\fBgenpath\fP will function properly with all flags, not just -I and -L.

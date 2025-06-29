@@ -1,0 +1,204 @@
+.\"
+.\" Mach Operating System
+.\" Copyright (c) 1992 Carnegie Mellon University
+.\" All Rights Reserved.
+.\"
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\"
+.\" Carnegie Mellon requests users of this software to return to
+.\"
+.\"  Software Distribution Coordinator  or  Software_Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\"
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\"
+.\" HISTORY
+.\" $Log:	md.man,v $
+.\" Revision 2.2  92/05/20  20:15:22  mrt
+.\" 	   Modified Bob Baron's CMU man page to reflect changes
+.\" 	   in the ODE program.
+.\" 	[92/05/07            mrt]
+.\" 
+.\" 09-Oct-86  Robert Baron (rvb) at Carnegie-Mellon University
+.\"	Created.
+.\"
+.TH MD 1 1/19/87
+.CM 1
+.SH NAME
+md \- create makefile dependencies from .d files created by -MD option to cc
+.SH SYNOPSIS
+md [options] file ...
+.I file ...
+may be a list of files output by the compiler preprossesor or a directory.
+If it is a directory all the files in that directory ending in the suffix
+.I .d
+are procesed.
+.PP
+The options are:
+.TP
+-Idir
+an include directory which will be used to try to recreate
+relative pathnames for the dependencies
+if that was where the file was found. 
+
+.TP
+-I-
+directories after this switch will be treated as standard include directories.
+No dependencies will be output for include files found in these directories
+unless the 
+.I -std
+switch is given.
+.TP
+-Kdir
+an include directory in which the dependency files will retain
+their complete pathnames. These directories must also appear in
+the -Idir list.
+.TP							    
+-rm
+delete the .d file after it is processed
+.TP
+-file  <filename>
+specifies the dependency file to be upgraded.  If -file is not explicitly
+specified then the dependencies are updated in 
+.I depend.mk
+.TP
+-std
+puts out the include files in the standard include directories that were referenced.
+These lines start with "#" so that they will not be used by 
+.I make
+as dependencies. They are only for information.
+.TP
+-verbose
+set the verbose flag
+.TP
+-version
+prints out the version of the 
+.I
+md
+program.
+.TP
+-debug
+debuging switch.
+.i0
+.DT
+.PP
+.SH DESCRIPTION
+
+.I md
+ processes the raw dependency files produced by the
+.I cc -MD
+option and uses the information to update a file with
+dependency information suitable to be used by
+.I make.
+In the raw output from 
+.I cc
+there is one line for every #include
+encountered, but there are repeats and patterns
+like .../dir1/../dir2 appear which should reduce to .../dir2.
+.I Md
+canonicalizes and flushes repeats from the dependency
+list and  sorts the file names.
+The .d files can be thrown away (-rm option)
+after processing to save space.
+
+The include file names in the .d files may not be suitable as make
+dependency names depending on what version of 
+.I make, cpp 
+and Makefiles you are using. This version of the 
+.I md 
+is designed to work with the ODE version of 
+.I make
+and any version of 
+.I cpp 
+or 
+.I gcc-cpp 
+that understands the -MD switch.
+In this environment the dependency names that the compiler generates
+are either absolute pathnames of the .h files or
+names relative to the compilation directory.
+The ODE 
+.I make
+typically looks along the path variable
+.I VPATH
+to find dependency files. If shadow directories are being used
+there can be serveral instances of the same logical directory
+on the 
+.I VPATH. 
+If a dependency file is found in a directory
+in the master sources on the first build and is subsequently replaced by
+a version in the shadow (a.k.a. sandbox) directory, we would like
+this replacement to trigger a rebuild of the target. If the
+names of the generated dependecy files are absolute, this will not
+occur. However, if a relative pathname is used, then 
+.I make 
+will find the new dependency and recognize the target as out-of-date.
+Thus 
+.I md
+accepts -I<dir> switches like the ones that are given to
+.I cpp
+and will make the .h files names to be
+relative to these one of these directories
+if possible.
+
+The directories entered with
+the 
+.I -I
+switches, must be directories that appear in the 
+.I VPATH.
+If one of these names matches the leading part of a .h file
+pathname, the resulting .h file name will be shortened to become
+relative to this directory.
+.PP
+The
+.I -I-
+switch is used like it is in 
+.I gcc 
+to separate the list of directories to be searched. In this case directories
+that are considered to be part of the source area appear before the
+.I -I-
+and standard include directories appear after. 
+It is assumed that include files found in the
+standard include directories should not be used to generate dependency
+lines. If the 
+.I -std
+switch is given these lines will be included in the output preceed by
+a # for information purposes only. Otherwise they will not appear at
+all.  If there is no
+.I -I-
+flag given, it is assumed that all the directories are standard ones
+and no dependency lines are output.
+
+If a .h file is not found in any of the directories specified with a 
+.I -I
+switch, 
+.I md
+will print out an error message and discard the .h file.
+
+It may also be that it is desired to keep the full pathnames for files
+in some directories. If a .h file name is found in one of the directories
+that were input with a 
+.I -K 
+switch, its absolute pathname will be output.
+
+.I Md
+assumes that dependency
+information  is sorted by .o file name and it
+procedes to merge in (add/or replace [as appropriate])  the new
+dependency lines that it has generated. 
+.PP
+.SH FILES
+depend.mk
+.SH "SEE ALSO"
+cc(1) gcc(1)
+

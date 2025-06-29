@@ -1,0 +1,79 @@
+.\" Copyright (c) 1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND CARNEGIE MELLON UNIVERSITY
+.\" DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.  IN NO EVENT
+.\" SHALL CARNEGIE MELLON UNIVERSITY BE LIABLE FOR ANY SPECIAL, DIRECT,
+.\" INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER
+.\" RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
+.\" CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+.\" CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.\" Users of this software agree to return to Carnegie Mellon any
+.\" improvements or extensions that they make and grant Carnegie the
+.\" rights to redistribute these changes.
+.\"
+.\" Export of this software is permitted only after complying with the
+.\" regulations of the U.S. Deptartment of Commerce relating to the
+.\" Export of Technical Data.
+.\""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.\" HISTORY
+.\" $Log:	makepath.man,v $
+.\" Revision 2.2  92/05/20  20:15:13  mrt
+.\" 	First checkin
+.\" 	[92/05/20  18:02:48  mrt]
+.\" 
+.\" Revision 2.3  90/12/12  15:53:31  mja
+.\" 	Add copyright/disclaimer for distribution.
+.\" 
+.\" Revision 2.2  89/02/22  17:58:59  gm0w
+.\" 	Created.
+.\" 	[89/02/22            gm0w]
+.\" 
+.TH MAKEPATH 1 5/20/92
+.AT 1
+.SH NAME
+makepath \- create intermediate directories for a path
+.SH SYNOPSIS
+.nf
+.B
+makepath [-version] [-quiet] path...
+.br
+.SH DESCRIPTION
+.I Makepath
+creates any directories missing in
+.IR path.
+If
+.IR path
+ends with a "/", the final component is assumed to be a directory
+and is created. If 
+.IR path
+does not end in a "/", the final component is not created.
+.I Makepath
+prints out the names of the directories it creates on 
+.I stderr.
+If 
+.IR path
+is "-" the path name is read from stdin.
+.PP
+The option
+.I -quiet
+supresses the printing of directory names.
+.PP
+The
+.IR -version
+option causes
+.I makepath
+to print out its version number.
+.PP
+.I Makepath
+returns 0 if successful, and any error code it received  otherwise.
+.SH "SEE ALSO"
+mkdir(1)
